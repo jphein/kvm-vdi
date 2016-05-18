@@ -1,0 +1,4 @@
+[virt-viewer]
+  type=spice
+	enable-usbredir=1
+	enable-usb-autoshare=1
