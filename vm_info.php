@@ -9,7 +9,7 @@ Center of Information Technology Development.
 
 
 Vilnius,Lithuania.
-2016-05-13
+2016-05-30
 */
 include ('functions/config.php');
 require_once('functions/functions.php');
@@ -17,14 +17,15 @@ if (!check_session()){
     header ("Location: $serviceurl/?error=1");
     exit;
 }
-$vm=addslashes($_GET['vm']);
-$hypervisor=addslashes($_GET['hypervisor']);
+slash_vars();
+$vm=$_GET['vm'];
+$hypervisor=$_GET['hypervisor'];
 if (empty($vm)||empty($hypervisor)){
     exit;
 }
 $h_reply=get_SQL_line("SELECT * FROM hypervisors WHERE id='$hypervisor'");
 $v_reply=get_SQL_line("SELECT * FROM vms WHERE id='$vm'");
-$source_machines_reply=get_SQL_array("SELECT * FROM vms WHERE hypervisor='$hypervisor' AND machine_type='sourcemachine' AND id<>'$vm'  ORDER BY name");
+$source_machines_reply=get_SQL_array("SELECT * FROM vms WHERE hypervisor='$hypervisor' AND (machine_type='sourcemachine' OR machine_type='initialmachine') AND id<>'$vm'  ORDER BY name");
 set_lang();
 ?>
 <!DOCTYPE html>
@@ -56,14 +57,14 @@ set_lang();
 		</div>
 		 <div class="col-md-5 hide" id="sourcevolume">
 		    <label>Use volume from:</label>
-		    <?php if(1){
+		    <?php
 		        echo '<select class="form-control" name="source_volume" id="source_volume">';
 			    $x=0;
 			    while ($x<sizeof($source_machines_reply)){
-				    echo '<option value="' . $source_machines_reply[$x]['id']  . '"> ' . $source_machines_reply[$x]['name']  . '</option>';
+				    echo '<option class="' . $source_machines_reply[$x]['machine_type'] .'" value="' . $source_machines_reply[$x]['id']  . '"> ' . $source_machines_reply[$x]['name']  . "</option>\n";
 				++$x;
-			    }
-			echo '<select>';}?>
+				}
+			echo '</select>';?>
 		</div>		 
 	    </div>
 	    <div class="row">
@@ -80,12 +81,21 @@ set_lang();
     </div>
 </form>
 <script>
+function refresh_select(){
+    $('#source_volume .sourcemachine').show();
+    $('#source_volume .initialmachine').show();
+}
 $('#machine_type').on('change', function(){
+    refresh_select();
     if ($(this).val() == 'initialmachine') {
+	$('#source_volume .initialmachine').hide();
         $('#sourcevolume').removeClass('hide');
+	$('#source_volume').prop('selectedIndex', -1);
     }
     if ($(this).val() == 'vdimachine') {
+	$('#source_volume .sourcemachine').hide();
         $('#sourcevolume').removeClass('hide');
+	$('#source_volume').prop('selectedIndex', -1);
     }
     if ($(this).val() == 'sourcemachine') {
 	$('#sourcevolume').addClass('hide');
@@ -93,10 +103,12 @@ $('#machine_type').on('change', function(){
     if ($(this).val() == 'simplemachine') {
         $('#sourcevolume').addClass('hide');
     }
-
 })
 <?php if (!empty($v_reply[3])){?>
     $("#machine_type").val(<?php echo '"' . $v_reply[3]  . '"'; ?>).change();
+<?php } ?>
+<?php if (!empty($v_reply[4])){?>
+    $("#source_volume").val(<?php echo '"' . $v_reply[4]  . '"'; ?>).change();
 <?php } ?>
 $("#snapshot").prop('checked', <?php if (!isset($v_reply[5])) echo 0; else echo 1; ?>);
 </script>

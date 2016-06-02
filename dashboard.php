@@ -9,7 +9,7 @@ Center of Information Technology Development.
 
 
 Vilnius,Lithuania.
-2016-05-12
+2016-06-02
 */
 include ('functions/config.php');
 require_once('functions/functions.php');
@@ -79,37 +79,29 @@ set_lang();
 	});
     </script>
     <script>
-	function readposition(filepath) {
-	    var allText=0;
-	    var rawFile = new XMLHttpRequest();
-	    rawFile.open("GET", filepath, false);
-	    rawFile.onreadystatechange = function ()
-	        {
-	        if(rawFile.readyState === 4)
-    		    {
-	            if(rawFile.status === 200 || rawFile.status == 0)
-    		        {
-            		allText = rawFile.responseText;
-        		}
-    		    }
-		}	
-    	    rawFile.send(null);
-	    return allText;
-    	}
 	function countdown(filepath,container) {
 	    var $container = $(container);
 	    (function step() {
-		count=readposition(filepath);
-		$container.css('width', count+'%').attr('aria-valuenow', count);  
-		$container.html(count+'%');
-		if (count < 100) {                    
-		    $container.parent('div').show();
-    		    setTimeout(step, 5000);              
-		}
-		if (count == 100 || count == -1) {
-		    $container.parent('div').hide();
-		}
-	  })();                                     
+		$.get(filepath, function(count){
+		    if (count==0){
+			$container.removeClass('progress-bar-success');
+			$container.css('width','100%').attr('aria-valuenow', count);  
+			$container.html('');
+		    }
+		    else{
+			$container.addClass('progress-bar-success');
+			$container.css('width', count+'%').attr('aria-valuenow', count);  
+			$container.html(count+'%');
+		    }
+		    if (count < 100 && count!='') {
+			$container.parent('div').show();
+    			setTimeout(step, 5000);
+		    }
+		    if (count == 100 || count=='') {
+			$container.parent('div').hide();
+		    }
+		});
+	  })();
 	}
     </script>
     <script>

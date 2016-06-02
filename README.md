@@ -2,6 +2,13 @@
 
 This project aims to provide fully functional VDI solution by using open source virtualization.
 
+**NOTICE: KVM-VDI versions prior to 2016/06/01**  
+  
+Older versions are no longer compatible with new release! Older versions need to be manually upgraded to a new db schema from sql/vdi.sql file  
+Also you must edit you VM to change to the new KVM wrapper script:
+
+     /usr/local/VDI/vdi-xmledit -name yourvmname
+
 **"KVM-VDI"** consists of three parts:
 
 * **Dashboard**. A webservice, which provides virtual machine control.
@@ -54,7 +61,7 @@ Create empty database/user on db server.
     git clone https://github.com/Seitanas/kvm-vdi
     cd kvm-vdi
 
-Edit functions/config.php file to fit your needs.  
+Rename functions/config.php_dist to functions/config.php Edit config.php to fit your needs.  
 Change permissions on tmp/ folder and functions/clients.xml file to give webserver writeable rights.  
 Go to http://yourservename/kvm-vdi  
 If installation is successful, you will be redirected to login page. Default credentials are: admin/password  
@@ -96,9 +103,9 @@ To check if everything works, from dashboard server type:
 
 If passwordless connection is established, everythin is fine.
 
-On each hypervisor create /usr/local/VDI folder. Copy all files from "hypervisors" folder.
-Edit config file accordingly.
-Edit your /etc/sudoers file according to examlpe of hypervisors/sudeors file.
+On each hypervisor create /usr/local/VDI folder. Copy all files from "hypervisors/" folder to /usr/local/VDI/ folder.  
+Edit config file accordingly.  
+Edit your /etc/sudoers file according to examlpe of hypervisors/sudeors file.  
   
 
 
@@ -109,13 +116,15 @@ Edit your /etc/sudoers file according to examlpe of hypervisors/sudeors file.
     apt-get xdotool x11-utils xwit python python-requests virt-viewer freerdp-x11 pulseaudio xinit
 
 Download and install vmware-view viewer from VMware if needed.  
-Copy files from thin_clients/ folder to your clients /usr/local/bin folder.  
-Edit vdi executable, and change dashboard_path variable to fit your configuration.  
-If you are using systemd, copy vdi init script from thin_clients/ folder to systemd script folder:
+Copy files from `thin_clients/` folder to your clients `/usr/local/VDI-client/` folder.  
+Edit `/usr/local/VDI-client/config` file to fit your configuration.  
+If you are using plain thin-clients (without x-window manager), you can use systemd for VDI client startup. Copy vdi init script from `thin_clients/` folder to systemd script folder:
 
     cp thin_clients/vdi.service /etc/systemd/system/
     systemctl daemon-reload
 
+If thin-clients do use some kind of x-window manager, run `/usr/local/VDI-client/vdi` application manually from window manager itself.  
+  
 Edit clients.xml file in your dashboard, specify IP address of your thin client, protocol and name of VDI machine it will use.  
 Start vdi service:
 
@@ -146,7 +155,10 @@ Also you can use network-based antivirus software, which offloads scanning to ex
 
 Most of remote display protocols require significant CPU time. This is because they do not utilise client's GPU.  
 Our production environment uses Intel NUC diskless clients with Intel i3 processors (lower grade processors should do fine, but requires further investigation).  
-We use "Debian unstable" distribution, booting it from PXE/NFS on aufs overlayed file system (overlay FS still has uncorrected bug with NFS as backing FS).
+We use "Debian unstable" distribution, booting it from PXE/NFS on aufs overlayed file system (overlay FS still has uncorrected bug with NFS as backing FS).  
+We are using RPM software to remotely power on/power off our thin clients.  
+You can obtain it from https://github.com/Seitanas/rpm  
+
 
 *Our hypervisors*
 

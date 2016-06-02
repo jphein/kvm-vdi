@@ -1,5 +1,4 @@
 <?php
-
 include ('functions/config.php');
 require_once('functions/functions.php');
 if (!check_session()){

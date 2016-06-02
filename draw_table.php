@@ -9,7 +9,7 @@ Center of Information Technology Development.
 
 
 Vilnius,Lithuania.
-2016-05-13
+2016-06-02
 */
 include ('functions/config.php');
 require_once('functions/functions.php');
@@ -70,17 +70,17 @@ while ($x<sizeof($sql_reply)){
                         <td class="col-md-1">' . ($y+1) . '</td> 
                         <td class="col-md-1"></td> 
                         <td class="col-md-2"><a data-toggle="modal" href="vm_info.php?vm=' . $vms_query[$y]['id'] . '&hypervisor=' . $sql_reply[$x]['id']  . '" data-target="#vmInfo">' . $vms_query[$y]['name'] . '</a> </td> 
-                        <td class="col-md-2">' . $machine_type[$vms_query[$y]['machine_type']] . '</td>
+                        <td class="col-md-2">', (!empty($vms_query[$y]['machine_type'])) ? $machine_type[$vms_query[$y]['machine_type']]  : "", '</td>
                         <td class="col-md-1">' . $vms_query[$y]['sourcename'] . '</td>
                         <td class="col-md-1"><input type="checkbox" '. $vms_query[$y]['snapshot'] . " onclick='handleSnapshot(this);' " . 'id="' . $vms_query[$y]['id'] .  '"></td>
                         <td class="col-md-1"><input type="checkbox" '. $vms_query[$y]['maintenance']. " onclick='handleMaintenance(this);' " . 'id="' . $vms_query[$y]['id'] .  '">';
-                        if (!empty($vms_query[$y]['filecopy'])){
+                        if (is_numeric($vms_query[$y]['filecopy'])){
                     	    echo '<div class="progress">
-                                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="' . $vms_query[$y]['filecopy'] . '">
+                                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="' . $vms_query[$y]['filecopy'] . '" style="width:100%">
                                     </div>
                             	  </div>
                                   <script>
-                                    countdown("' . $serviceurl . '/tmp/' . $vms_query[$y]['filecopy'] . '.txt","#' . $vms_query[$y]['filecopy'] . '");
+                                    countdown("' . $serviceurl . '/progress.php?vm=' . $vms_query[$y]['id']  . '","#' . $vms_query[$y]['filecopy'] . '");
                                   </script>';
                         }
                         echo  '</td>
@@ -113,11 +113,11 @@ while ($x<sizeof($sql_reply)){
                         if ($pwr_status=="on"){
                             echo' <a data-toggle="modal" data-target="#vmConsole" href="vm_screen.php?vm=' . $vms_query[$y]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover"  class="btn btn-info" aria-label="' . _("Open console") . '" title="' . _("Open console") . '">
                                 <span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></a>';
-                        }
-                              echo '<a href="power.php?action=single&state=down&vm=' . $vms_query[$y]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover" class="btn btn-default" aria-label="' . _("Shut down") . '" title="' . _("Shut down (soft)") . '"  onclick="return confirmBox(' . "'" . _("Are you sure?") . "'" . ');">
+                            echo '<a href="power.php?action=single&state=down&vm=' . $vms_query[$y]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover" class="btn btn-default" aria-label="' . _("Shut down") . '" title="' . _("Shut down (soft)") . '"  onclick="return confirmBox(' . "'" . _("Are you sure?") . "'" . ');">
                               <span class="glyphicon glyphicon-off" aria-hidden="true"></span></a>
                               <a href="power.php?action=single&state=destroy&vm=' . $vms_query[$y]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover"  class="btn btn-danger" aria-label="' . _("Power down") . '" title="Shut down (forced)"  onclick="return confirmBox(' . "'" . _("Are you sure?") . "'" . ');">
                               <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span></a>';
+			    }
                               if ($vms_query[$y]['machine_type']!='simplemachine')
 				    echo' <a href="delete_vm.php?vm=' . $vms_query[$y]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover"  class="btn btn-danger" aria-label="' . _("Delete VM") . '" title="' . _("Delete VM") .  '"  onclick="return confirmBox(' . "'" . _("Are you sure?") . "'" . ');">
                             		<span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>';
@@ -165,11 +165,11 @@ while ($x<sizeof($sql_reply)){
                     		if ($pwr_status=="on"){
                         	    echo' <a data-toggle="modal" data-target="#vmConsole" href="vm_screen.php?vm=' . $VDI_query[$q]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover"  class="btn btn-info" aria-label="' . _("Open console") . '" title="' . _("Open console") . '">
                             		<span class="glyphicon glyphicon-modal-window" aria-hidden="true"></span></a>';
-                    		}
-                                echo '<a href="power.php?action=single&state=down&vm=' . $VDI_query[$q]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover" class="btn btn-default" aria-label="' . _("Shut down") . '" title="' . _("Shut down (soft)") . '"  onclick="return confirmBox(' . "'" . _("Are you sure?") . "'" . ');">
-                        		<span class="glyphicon glyphicon-off" aria-hidden="true"></span></a>
+                            	    echo '<a href="power.php?action=single&state=down&vm=' . $VDI_query[$q]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover" class="btn btn-default" aria-label="' . _("Shut down") . '" title="' . _("Shut down (soft)") . '"  onclick="return confirmBox(' . "'" . _("Are you sure?") . "'" . ');">
+                        	        <span class="glyphicon glyphicon-off" aria-hidden="true"></span></a>
                             	        <a href="power.php?action=single&state=destroy&vm=' . $VDI_query[$q]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover"  class="btn btn-danger" aria-label="' . _("Power down") . '" title="Shut down (forced)"  onclick="return confirmBox(' . "'" . _("Are you sure?") . "'" . ');">
                             		<span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span></a>';
+				}
                         	echo' <a href="delete_vm.php?vm=' . $VDI_query[$q]['id'] . '&hypervisor=' . $sql_reply[$x]['id'] . '" data-toggle="hover"  class="btn btn-danger" aria-label="' . _("Delete VM") . '" title="' . _("Delete VM") .  '"  onclick="return confirmBox(' . "'" . _("Are you sure?") . "'" . ');">
                             		<span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>';
 				echo '</td></tr>';
